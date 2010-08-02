@@ -6,20 +6,24 @@ public class Message {
 	
 	public static Message createPoison() {
 		Message msg = new Message();
-		msg.setProperty( "com.kdab.control", "poison" );
+		msg.setProperty( "com.kdab.restbot.control", "poison" );
 		return msg;
 	}
 	
 	public boolean isPoison() {
-		return property( "com.kdab.control" ).equals( "poison" );
+		return property( "com.kdab.restbot.control" ).equals( "poison" );
+	}
+	
+	public final String receiver() {
+		return m_receiver;
+	}
+	
+	public final void setReceiver( String receiver ) {
+		m_receiver = receiver;
 	}
 	
 	public final String text() {
-		return m_text;
-	}
-
-	public final void setText( String text ) {
-		m_text = text;
+		return property( "text" );
 	}
 
 	public final String property( String k ) {
@@ -29,6 +33,6 @@ public class Message {
 		m_properties.put( k, v );
 	}
 	
-	private String m_text;
+	private String m_receiver;
 	private HashMap<String, String> m_properties;
 }

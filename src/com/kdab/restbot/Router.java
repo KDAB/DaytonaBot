@@ -22,7 +22,7 @@ public class Router implements Runnable {
 	}
 
 	public void route( Message msg ) {
-		//TODO assign sender
+		msg.setReceiver( "frank@kdab.com" ); //TODO :)
 		while ( true ) {
 			try {
 				m_out.put( msg );

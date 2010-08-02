@@ -13,8 +13,8 @@ public class Main {
 		Parser p = new Parser( raw, parsed );
 		Router r = new Router( parsed, routed );
 		//TODO setup
-		JabberBot b = new JabberBot( routed );
-		//TODO setup
+		Account account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
+		JabberBot b = new JabberBot( routed, account );
 		new Thread( rec ).start();
 		new Thread( p ).start();
 		new Thread( r ).start();
