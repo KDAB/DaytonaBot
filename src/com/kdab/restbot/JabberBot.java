@@ -3,7 +3,9 @@ package com.kdab.restbot;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
+import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
@@ -18,6 +20,7 @@ public class JabberBot implements Runnable {
 		try {
 			login();
 		} catch ( XMPPException e ) {
+			System.err.println( e );
 			//TODO how to report?
 		}
 		while ( true ) {
@@ -32,12 +35,21 @@ public class JabberBot implements Runnable {
 				logout();
 				return;
 			}
-			send( msg );
+			try {
+				send( msg );
+			} catch ( XMPPException e ) {
+				System.err.println( e );
+				//TODO how to report?
+			}
 		}
 	}
 	
-	private void send( Message msg ) {
-		
+	private void send( Message msg ) throws XMPPException {
+		final String rec = msg.receiver();
+		assert( rec != null );
+		assert( !rec.isEmpty() );
+		Chat chat = m_connection.getChatManager().createChat( rec, null );
+		chat.sendMessage( msg.text() );
 	}
 	
 	private void login() throws XMPPException {

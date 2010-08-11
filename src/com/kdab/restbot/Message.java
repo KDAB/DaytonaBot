@@ -10,8 +10,13 @@ public class Message {
 		return msg;
 	}
 	
+	public Message() {
+		m_properties = new HashMap<String, String>();
+	}
+	
 	public boolean isPoison() {
-		return property( "com.kdab.restbot.control" ).equals( "poison" );
+		final String v = property( "com.kdab.restbot.control" );
+		return v != null && v.equals( "poison" );
 	}
 	
 	public final String receiver() {

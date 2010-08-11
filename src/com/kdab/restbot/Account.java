@@ -1,8 +1,5 @@
 package com.kdab.restbot;
 
-import java.util.Vector;
-
-
 class Account {
     public Account( String user, String server, int port, String password )
     {
