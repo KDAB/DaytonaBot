@@ -11,6 +11,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 public class JabberBot implements Runnable {
@@ -76,6 +77,8 @@ public class JabberBot implements Runnable {
         final int magic = new Random().nextInt( 1000 );
         final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.getServer(), m_account.getPort() );
         connconf.setSecurityMode( SecurityMode.required );
+        connconf.setSendPresence( true );
+        
         try
         {
             m_connection = new XMPPConnection( connconf );
@@ -94,6 +97,7 @@ public class JabberBot implements Runnable {
 		for ( String i : m_roomsToJoin ) {
 			MultiUserChat c = new MultiUserChat( m_connection, i );
 			c.join( m_nick );
+			c.changeAvailabilityStatus( "Yo.", Presence.Mode.available );
 			m_rooms.put( i, c );
 		}
 	}
