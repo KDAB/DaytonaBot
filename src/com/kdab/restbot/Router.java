@@ -1,11 +1,13 @@
 package com.kdab.restbot;
 
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 public class Router implements Runnable {
-	public Router( BlockingQueue<Message> inQ, BlockingQueue<Message> outQ ) {
+	public Router( BlockingQueue<Message> inQ, BlockingQueue<Message> outQ, Vector<RoutingRule> rules ) {
 		m_in = inQ;
 		m_out = outQ;
+		m_rules = rules;
 	}
 
 	public void run() {
@@ -22,9 +24,10 @@ public class Router implements Runnable {
 	}
 
 	public void route( Message msg ) {
-		msg.setReceiver( "frank@kdab.com" ); //TODO :)
 		while ( true ) {
 			try {
+				for ( RoutingRule i : m_rules )
+					i.applyTo( msg );
 				m_out.put( msg );
 				return;
 			} catch ( InterruptedException e ) {
@@ -32,6 +35,7 @@ public class Router implements Runnable {
 		}
 	}
 	
-	BlockingQueue<Message> m_in;
-	BlockingQueue<Message> m_out;
+	private BlockingQueue<Message> m_in;
+	private BlockingQueue<Message> m_out;
+	private Vector<RoutingRule> m_rules;
 }

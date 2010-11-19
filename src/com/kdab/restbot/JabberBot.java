@@ -1,24 +1,31 @@
 package com.kdab.restbot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 public class JabberBot implements Runnable {
-	public JabberBot( BlockingQueue<Message> in, Account account ) {
+	public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> roomsToJoin ) {
 		m_in = in;
 		m_account = account;
+		m_roomsToJoin = roomsToJoin;
+		m_nick = nick;
+		m_rooms = new HashMap<String, MultiUserChat>();
 	}
 		
 	public void run() {
 		try {
 			login();
+			joinRooms();
 		} catch ( XMPPException e ) {
 			System.err.println( e );
 			//TODO how to report?
@@ -45,11 +52,23 @@ public class JabberBot implements Runnable {
 	}
 	
 	private void send( Message msg ) throws XMPPException {
-		final String rec = msg.receiver();
-		assert( rec != null );
-		assert( !rec.isEmpty() );
-		Chat chat = m_connection.getChatManager().createChat( rec, null );
-		chat.sendMessage( msg.text() );
+		for ( Message.Receiver i : msg.receivers() ) {
+			final String rec = i.receiver;
+			assert( rec != null );
+			assert( !rec.isEmpty() );
+	
+			if ( i.type == Message.ReceiverType.User ) {
+				Chat chat = m_connection.getChatManager().createChat( rec, null );
+				chat.sendMessage( msg.text() );
+			} else {
+				MultiUserChat c = m_rooms.get( rec );
+				if ( c != null ) {
+					c.sendMessage( msg.text() );
+				} else {
+					// report?
+				}
+			}
+		}
 	}
 	
 	private void login() throws XMPPException {
@@ -71,12 +90,21 @@ public class JabberBot implements Runnable {
         }	
 	}
 	
+	private void joinRooms() throws XMPPException {
+		for ( String i : m_roomsToJoin ) {
+			MultiUserChat c = new MultiUserChat( m_connection, i );
+			c.join( m_nick );
+			m_rooms.put( i, c );
+		}
+	}
 	private void logout() {
-		
 	}
 
 	private BlockingQueue<Message> m_in;
 	private Account m_account;
-    XMPPConnection m_connection;
+	private Vector<String> m_roomsToJoin;
+	private String m_nick;
+    private XMPPConnection m_connection;
+    private Map<String,MultiUserChat> m_rooms;
 
 }

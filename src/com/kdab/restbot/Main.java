@@ -5,16 +5,17 @@ import java.util.concurrent.BlockingQueue;
 
 public class Main {
 	public static void main( String[] args ) {
+		Configuration config = new Configuration();
 		BlockingQueue<byte[]> raw = new ArrayBlockingQueue<byte[]>( 1000 );
 		BlockingQueue<Message> parsed = new ArrayBlockingQueue<Message>( 1000 );
 		BlockingQueue<Message> routed = new ArrayBlockingQueue<Message>( 5000 );
 		Receiver rec = new Receiver( raw );
 		//TODO setup: port 
 		Parser p = new Parser( raw, parsed );
-		Router r = new Router( parsed, routed );
+		Router r = new Router( parsed, routed, config.routingRules() );
 		//TODO setup
 		Account account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
-		JabberBot b = new JabberBot( routed, account );
+		JabberBot b = new JabberBot( routed, account, config.nick(), config.roomsToJoin() );
 		new Thread( rec ).start();
 		new Thread( p ).start();
 		new Thread( r ).start();

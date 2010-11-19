@@ -1,6 +1,7 @@
 package com.kdab.restbot;
 
 import java.util.HashMap;
+import java.util.Vector;
 
 public class Message {
 	
@@ -10,8 +11,23 @@ public class Message {
 		return msg;
 	}
 	
+	enum ReceiverType {
+		User,
+		Room
+	}
+	
+	class Receiver {
+		public Receiver( String r, ReceiverType t ) {
+			receiver = r;
+			type = t;
+		}
+		public final String receiver;
+		public final ReceiverType type;
+	}
+	
 	public Message() {
 		m_properties = new HashMap<String, String>();
+		m_receivers = new Vector<Receiver>();
 	}
 	
 	public boolean isPoison() {
@@ -19,12 +35,12 @@ public class Message {
 		return v != null && v.equals( "poison" );
 	}
 	
-	public final String receiver() {
-		return m_receiver;
+	public final Vector<Receiver> receivers() {
+		return m_receivers;
 	}
 	
-	public final void setReceiver( String receiver ) {
-		m_receiver = receiver;
+	public final void addReceiver( String receiver, ReceiverType type ) {
+		m_receivers.add( new Receiver( receiver, type ) );
 	}
 	
 	public final String text() {
@@ -38,6 +54,6 @@ public class Message {
 		m_properties.put( k, v );
 	}
 	
-	private String m_receiver;
+	private Vector<Receiver> m_receivers;
 	private HashMap<String, String> m_properties;
 }
