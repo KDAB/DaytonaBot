@@ -16,8 +16,13 @@ public class Configuration {
 		RoutingRule rule2 = new RoutingRule( cond2, Message.ReceiverType.Room, "royalblue@conference.kdab.com" );
 		m_routingRules.add( rule1 );
 		m_routingRules.add( rule2 );
+		m_account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
 	}
 
+	public final Account account() {
+		return m_account;
+	}
+	
 	public final Vector<String> roomsToJoin() {
 		return m_roomsToJoin;
 	}
@@ -32,6 +37,6 @@ public class Configuration {
 	
 	private Vector<String> m_roomsToJoin;
 	private Vector<RoutingRule> m_routingRules;
-	
+	private Account m_account;
 	private String m_nick;
 }

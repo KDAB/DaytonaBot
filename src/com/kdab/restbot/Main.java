@@ -14,8 +14,7 @@ public class Main {
 		Parser p = new Parser( raw, parsed );
 		Router r = new Router( parsed, routed, config.routingRules() );
 		//TODO setup
-		Account account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
-		JabberBot b = new JabberBot( routed, account, config.nick(), config.roomsToJoin() );
+		JabberBot b = new JabberBot( routed, config.account(), config.nick(), config.roomsToJoin() );
 		new Thread( rec ).start();
 		new Thread( p ).start();
 		new Thread( r ).start();
