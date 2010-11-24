@@ -4,6 +4,7 @@ import java.util.Vector;
 
 interface BinaryPredicate {
 	public boolean isTrue( String lhs, String rhs );
+	public String name();
 }
 
 class Equals implements BinaryPredicate {
@@ -13,6 +14,10 @@ class Equals implements BinaryPredicate {
 		else
 			return lhs.equals( rhs );
 	}
+	
+	public String name() {
+		return "equals";
+	}
 }
 
 class Contains implements BinaryPredicate {
@@ -21,6 +26,10 @@ class Contains implements BinaryPredicate {
 			return true;
 		else
 			return lhs.contains( rhs );
+	}
+	
+	public String name() {
+		return "contains";
 	}
 }
 
@@ -36,6 +45,10 @@ class Condition {
 		return m_pred.isTrue( p, m_value );
 	}
 	
+	public String toString() {
+		return String.format( "%s :%s \"%s\"", m_property, m_pred.name(), m_value );
+	}
+
 	private String m_property;
 	private String m_value;
 	private BinaryPredicate m_pred;
@@ -66,6 +79,18 @@ public class RoutingRule {
 			if ( !i.satisfiedBy( m ) )
 				return false;
 		return true;
+	}
+	
+	public String toString() {
+		String typestr = m_receiverType == Message.ReceiverType.Room ? "room" : "user";
+			
+		String conds = "";
+		for ( Condition i : m_conditions )
+			if ( !conds.isEmpty() )
+				conds += ", " + i.toString();
+			else
+				conds += i.toString();
+		return String.format("%s => %s \"%s\"", conds, typestr, m_receiver ); 
 	}
 	
 	private Vector<Condition> m_conditions;
