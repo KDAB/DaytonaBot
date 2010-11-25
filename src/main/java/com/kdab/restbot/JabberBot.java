@@ -84,7 +84,7 @@ public class JabberBot implements Runnable {
             m_connection.connect();
             m_connection.login( m_account.user(), m_account.password(), "RestBot" + magic );
         } catch ( XMPPException e ) {
-            // TODO: check if reset to null is enough for cleanup
+            m_connection.disconnect();
             m_connection = null;
             throw e;
         }
