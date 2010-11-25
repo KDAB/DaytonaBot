@@ -22,19 +22,17 @@ public class Parser implements Runnable {
 	}
 	
 	public void run() {
-		while ( true ) {
-			byte[] raw = null;
-			try {
-				raw = m_in.take();
-			} catch ( InterruptedException e ) {
-				//TODO: correct?
-				continue;
+		try {
+			while ( true ) {
+				byte[] raw = m_in.take();
+				parseAndPut( raw );
 			}
-			parseAndPut( raw );
+		} catch ( InterruptedException e ) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
-	private void parseAndPut( byte[] raw ) {
+	private void parseAndPut( byte[] raw ) throws InterruptedException {
 		Message msg = null;
 		try {
 			msg = parse( raw );
@@ -43,13 +41,7 @@ public class Parser implements Runnable {
 			return;
 		}
 
-		while ( true ) {
-			try {
-				m_out.put( msg );
-				return;
-			} catch ( InterruptedException e ) {
-			}
-		}			
+		m_out.put( msg );
 	}
 	
 	private Message parse( byte[] raw ) throws SAXException {
@@ -61,14 +53,13 @@ public class Parser implements Runnable {
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		} catch ( ParserConfigurationException e ) {
 			System.err.println( "Could not create document builder: " + e );
-			assert( false );
+			//TODO report fatal error
 		}
 		Document doc = null;
 		try {
 			doc = builder.parse( new ByteArrayInputStream( raw ) );
 		} catch ( IOException e ) {
 			System.err.println( "Impossible IOException while reading from a byte array: " + e );
-			assert( false );
 			//TODO report fatal error
 		}
 		final Element root = doc.getDocumentElement();

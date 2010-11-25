@@ -11,28 +11,22 @@ public class Router implements Runnable {
 	}
 
 	public void run() {
-		while ( true ) {
-			try {
+		try {
+			while ( true ) {	
 				final Message m = m_in.take();
 				route( m );						
 				if ( m.isPoison() )
 					return;
-			} catch ( InterruptedException e ) {
-				//TODO correct?
 			}
+		} catch ( InterruptedException e ) {
+			Thread.currentThread().interrupt();
 		}
 	}
 
-	public void route( Message msg ) {
-		while ( true ) {
-			try {
-				for ( RoutingRule i : m_rules )
-					i.applyTo( msg );
-				m_out.put( msg );
-				return;
-			} catch ( InterruptedException e ) {
-			}
-		}
+	public void route( Message msg ) throws InterruptedException {
+		for ( RoutingRule i : m_rules )
+			i.applyTo( msg );
+		m_out.put( msg );
 	}
 	
 	private BlockingQueue<Message> m_in;

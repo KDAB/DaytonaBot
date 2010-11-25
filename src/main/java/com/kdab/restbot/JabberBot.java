@@ -31,24 +31,22 @@ public class JabberBot implements Runnable {
 			System.err.println( e );
 			//TODO how to report?
 		}
-		while ( true ) {
-			Message msg;
-			try {
-				msg = m_in.take();
-			} catch ( InterruptedException e ) {
-				//TODO correct?
-				continue;
+		try {
+			while ( true ) {
+				Message msg = m_in.take();
+				if ( msg.isPoison() ) {
+					logout();
+					return;
+				}
+				try {
+					send( msg );
+				} catch ( XMPPException e ) {
+					System.err.println( e );
+					//TODO how to report?
+				}
 			}
-			if ( msg.isPoison() ) {
-				logout();
-				return;
-			}
-			try {
-				send( msg );
-			} catch ( XMPPException e ) {
-				System.err.println( e );
-				//TODO how to report?
-			}
+		} catch ( InterruptedException e ) {
+			Thread.currentThread().interrupt();
 		}
 	}
 	
