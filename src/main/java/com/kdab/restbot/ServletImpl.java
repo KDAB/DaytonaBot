@@ -18,37 +18,45 @@ import org.apache.commons.io.IOUtils;
 
 import com.kdab.restbot.Configuration;
 import com.kdab.restbot.JabberBot;
+import com.kdab.restbot.JsonParser;
 import com.kdab.restbot.Message;
-import com.kdab.restbot.Parser;
 import com.kdab.restbot.Router;
+import com.kdab.restbot.XmlParser;
 
 public class ServletImpl extends HttpServlet {
     public ServletImpl() {
         m_queuesByFormat = new HashMap<String, BlockingQueue<byte[]>>();
     }
 
+    @Override
     public void init( ServletConfig cfg ) {
         Configuration config = new Configuration();
         BlockingQueue<byte[]> rawXml = new ArrayBlockingQueue<byte[]>( 1000 );
+        BlockingQueue<byte[]> rawJson = new ArrayBlockingQueue<byte[]>( 1000 );
         m_queuesByFormat.put( "xml", rawXml );
+        m_queuesByFormat.put( "json", rawJson );
         BlockingQueue<Message> parsed = new ArrayBlockingQueue<Message>( 1000 );
         BlockingQueue<Message> routed = new ArrayBlockingQueue<Message>( 5000 );
-        Parser p = new Parser( rawXml, parsed );
+        XmlParser xp = new XmlParser( rawXml, parsed );
+        JsonParser jp = new JsonParser( rawJson, parsed );
         Router r = new Router( parsed, routed, config.routingRules() );
         JabberBot b = new JabberBot( routed, config.account(), config.nick(), config.roomsToJoin() );
         m_workers = new Vector<Thread>();
-        m_workers.add( new Thread( p ) );
+        m_workers.add( new Thread( xp ) );
+        m_workers.add( new Thread( jp ) );
         m_workers.add( new Thread( r ) );
         m_workers.add( new Thread( b ) );
         for ( Thread i : m_workers )
             i.start();
     }
 
+    @Override
     public void destroy() {
         for ( Thread i : m_workers )
             i.interrupt();
     }
 
+    @Override
     public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
         PrintWriter out = response.getWriter();
         out.println( "Use PUT to deliver content to notify" );
@@ -56,6 +64,7 @@ public class ServletImpl extends HttpServlet {
         out.close();
     }
 
+    @Override
     public void doPut( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
         String format = request.getParameter( "format" );
         if ( format == null )

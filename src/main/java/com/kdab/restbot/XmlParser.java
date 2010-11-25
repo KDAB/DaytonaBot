@@ -15,8 +15,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class Parser implements Runnable {
-    public Parser( BlockingQueue<byte[]> in, BlockingQueue<Message> out ) {
+public class XmlParser implements Runnable {
+    public XmlParser( BlockingQueue<byte[]> in, BlockingQueue<Message> out ) {
         m_in = in;
         m_out = out;
     }
