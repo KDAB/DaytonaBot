@@ -64,7 +64,14 @@ public class RoutingRule {
     }
 
     public RoutingRule( String str ) {
+
         //TODO
+        // Receiver := JID
+        // ReceiverType := "Room" | "User"
+        // Predicate =  ":contains"|":equals'"
+        // Property = A-Za-z0-9._-
+        // Condition := Property Predicate \"String\"
+        // Rule := Condition [, Condition]* => ReceiverType Receiver
     }
 
     public String receiver() {
