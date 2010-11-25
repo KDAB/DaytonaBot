@@ -46,6 +46,7 @@ public class JabberBot implements Runnable {
 				}
 			}
 		} catch ( InterruptedException e ) {
+			logout();
 			Thread.currentThread().interrupt();
 		}
 	}
@@ -100,6 +101,7 @@ public class JabberBot implements Runnable {
 		}
 	}
 	private void logout() {
+		m_connection.disconnect();
 	}
 
 	private BlockingQueue<Message> m_in;
