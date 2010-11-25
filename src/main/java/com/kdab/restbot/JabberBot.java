@@ -74,15 +74,15 @@ public class JabberBot implements Runnable {
     private void login() throws XMPPException {
         assert (m_connection == null);
         final int magic = new Random().nextInt( 1000 );
-        final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.getServer(), m_account
-                .getPort() );
+        final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.server(), m_account
+                .port() );
         connconf.setSecurityMode( SecurityMode.required );
         connconf.setSendPresence( true );
 
         try {
             m_connection = new XMPPConnection( connconf );
             m_connection.connect();
-            m_connection.login( m_account.getUser(), m_account.getPassword(), "RestBot" + magic );
+            m_connection.login( m_account.user(), m_account.password(), "RestBot" + magic );
         } catch ( XMPPException e ) {
             // TODO: check if reset to null is enough for cleanup
             m_connection = null;

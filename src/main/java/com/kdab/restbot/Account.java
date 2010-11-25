@@ -8,19 +8,19 @@ class Account {
         m_password = password;
     }
 
-    public final String getUser() {
+    public final String user() {
         return m_user;
     }
 
-    public final String getServer() {
+    public final String server() {
         return m_server;
     }
 
-    public final int getPort() {
+    public final int port() {
         return m_port;
     }
 
-    public final String getPassword() {
+    public final String password() {
         return m_password;
     }
 
