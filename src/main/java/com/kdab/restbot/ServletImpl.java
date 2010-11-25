@@ -1,6 +1,9 @@
 package com.kdab.restbot;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -17,31 +20,29 @@ import com.kdab.restbot.Router;
 
 public class ServletImpl extends HttpServlet {
 	public ServletImpl() {
+		m_queuesByFormat = new HashMap<String, BlockingQueue<byte[]>>();
 	}
 	
 	public void init( ServletConfig cfg ) {
 		Configuration config = new Configuration();
-		BlockingQueue<byte[]> raw = new ArrayBlockingQueue<byte[]>( 1000 );
+		BlockingQueue<byte[]> rawXml = new ArrayBlockingQueue<byte[]>( 1000 );
+		m_queuesByFormat.put( "xml", rawXml );
 		BlockingQueue<Message> parsed = new ArrayBlockingQueue<Message>( 1000 );
 		BlockingQueue<Message> routed = new ArrayBlockingQueue<Message>( 5000 );
-		Parser p = new Parser( raw, parsed );
+		Parser p = new Parser( rawXml, parsed );
 		Router r = new Router( parsed, routed, config.routingRules() );
 		JabberBot b = new JabberBot( routed, config.account(), config.nick(), config.roomsToJoin() );
-		new Thread( p ).start();
-		new Thread( r ).start();
-		new Thread( b ).start();
-
-		m_out = raw;		
+		m_workers = new Vector<Thread>();
+		m_workers.add( new Thread( p ) );
+		m_workers.add( new Thread( r ) );
+		m_workers.add( new Thread( b ) );
+		for ( Thread i : m_workers )
+			i.start();
 	}
 	
 	public void destroy() {
-		//send poison message to shutdown the runnables
-		final byte[] poison = "<message><com_kdab_restbot_control>poison</com_kdab_restbot_control></message>".getBytes();
-		try {
-			m_out.put( poison );
-		} catch ( InterruptedException e ) {
-			Thread.currentThread().interrupt();
-		}
+		for ( Thread i : m_workers )
+			i.interrupt();
 	}
 	
     public void doGet(HttpServletRequest request,
@@ -60,23 +61,28 @@ public class ServletImpl extends HttpServlet {
     	if ( format == null )
     		format = "xml";
     	
-    	if ( format != "xml" ) {
-    		//TODO handle unsupported format
+    	if ( !m_queuesByFormat.containsKey( format ) ) {
+    	   	response.setStatus( HttpServletResponse.SC_BAD_REQUEST );
+    		PrintWriter out = response.getWriter();
+        	out.println( String.format( "Unknown format \'%s\'.", format ) );
+        	out.flush();
+        	out.close();
+        	return;
     	}
     	
-    	String error = "";
     	byte[] ba = IOUtils.toByteArray( request.getInputStream() );
     	try {
-    		m_out.put( ba );
+    		m_queuesByFormat.get( format ).put( ba );
     	} catch ( InterruptedException e ) {
 			Thread.currentThread().interrupt();
     	}
     	
     	PrintWriter out = response.getWriter();
-    	out.println( "Message accepted." + error );
+    	out.println( "Message received." );
     	out.flush();
     	out.close();
     }
     
-	private BlockingQueue<byte[]> m_out;
+	private Map<String,BlockingQueue<byte[]>> m_queuesByFormat;
+	private Vector<Thread> m_workers;
 }
