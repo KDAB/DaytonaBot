@@ -46,6 +46,7 @@ class Condition {
         return m_pred.isTrue( p, m_value );
     }
 
+    @Override
     public String toString() {
         return String.format( "%s :%s \"%s\"", m_property, m_pred.name(), m_value );
     }
@@ -60,6 +61,10 @@ public class RoutingRule {
         m_conditions = conditions;
         m_receiverType = receiverType;
         m_receiver = receiver;
+    }
+
+    public RoutingRule( String str ) {
+        //TODO
     }
 
     public String receiver() {
@@ -82,6 +87,7 @@ public class RoutingRule {
         return true;
     }
 
+    @Override
     public String toString() {
         String typestr = m_receiverType == Message.ReceiverType.Room ? "room" : "user";
 

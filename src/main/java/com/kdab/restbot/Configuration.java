@@ -1,6 +1,15 @@
 package com.kdab.restbot;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 import java.util.Vector;
+
+class InvalidConfigurationException extends Exception {
+    public InvalidConfigurationException( String msg ) {
+        super( msg );
+    }
+}
 
 public class Configuration {
     public Configuration() {
@@ -17,6 +26,30 @@ public class Configuration {
         m_routingRules.add( rule1 );
         m_routingRules.add( rule2 );
         m_account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
+    }
+
+    static String throwIfNull( Properties prop, String p ) throws InvalidConfigurationException {
+        final String v = prop.getProperty( p );
+        if ( v == null )
+            throw new InvalidConfigurationException( String.format( "Required property \"%s\" not found!", p ) );
+        return v;
+    }
+
+    public Configuration( Properties props ) throws IOException, InvalidConfigurationException {
+        final String user = throwIfNull( props, "jabber.user" );
+        final String server = throwIfNull( props, "jabber.server" );
+        final String password = throwIfNull( props, "jabber.password" );
+        final int port = Integer.parseInt( throwIfNull( props, "jabber.port" ) );
+        m_account = new Account( user, server, port, password );
+        final int roomCount = Integer.parseInt( throwIfNull( props, "jabber.roomsToJoin.count" ) );
+        m_roomsToJoin = new Vector<String>();
+        for ( int i = 0; i < roomCount; ++i )
+            m_roomsToJoin.add( throwIfNull( props, "jabber.roomToJoin.n" + i ) );
+        m_nick = props.getProperty( "jabber.room.nick", "RESTBot" );
+        final int ruleCount = Integer.parseInt( throwIfNull( props, "jabber.routingRules.count" ) );
+        m_routingRules = new Vector<RoutingRule>();
+        for ( int i = 0; i < roomCount; ++i )
+            m_routingRules.add( new RoutingRule( throwIfNull( props, "jabber.routingRules.n" + i ) ) );
     }
 
     public final Account account() {
