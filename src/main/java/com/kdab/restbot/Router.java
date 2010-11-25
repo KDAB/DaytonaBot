@@ -15,7 +15,7 @@ public class Router implements Runnable {
             while ( true ) {
                 final Message m = m_in.take();
                 final boolean poison = m.isPoison();
-                route(m);
+                route( m );
                 if ( poison )
                     return;
             }
@@ -26,8 +26,8 @@ public class Router implements Runnable {
 
     public void route( Message msg ) throws InterruptedException {
         for ( RoutingRule i : m_rules )
-            i.applyTo(msg);
-        m_out.put(msg);
+            i.applyTo( msg );
+        m_out.put( msg );
     }
 
     private BlockingQueue<Message> m_in;

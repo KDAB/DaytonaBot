@@ -13,7 +13,7 @@ class Equals implements BinaryPredicate {
         if ( lhs == null )
             return rhs == null;
         else
-            return lhs.equals(rhs);
+            return lhs.equals( rhs );
     }
 
     public String name() {
@@ -26,7 +26,7 @@ class Contains implements BinaryPredicate {
         if ( rhs == null || rhs.isEmpty() )
             return true;
         else
-            return lhs.contains(rhs);
+            return lhs.contains( rhs );
     }
 
     public String name() {
@@ -42,12 +42,12 @@ class Condition {
     }
 
     public boolean satisfiedBy( Message m ) {
-        String p = m.property(m_property);
-        return m_pred.isTrue(p, m_value);
+        String p = m.property( m_property );
+        return m_pred.isTrue( p, m_value );
     }
 
     public String toString() {
-        return String.format("%s :%s \"%s\"", m_property, m_pred.name(), m_value);
+        return String.format( "%s :%s \"%s\"", m_property, m_pred.name(), m_value );
     }
 
     private String m_property;
@@ -71,13 +71,13 @@ public class RoutingRule {
     }
 
     public void applyTo( Message m ) {
-        if ( matches(m) )
-            m.addReceiver(m_receiver, m_receiverType);
+        if ( matches( m ) )
+            m.addReceiver( m_receiver, m_receiverType );
     }
 
     public boolean matches( Message m ) {
         for ( Condition i : m_conditions )
-            if ( !i.satisfiedBy(m) )
+            if ( !i.satisfiedBy( m ) )
                 return false;
         return true;
     }
@@ -91,7 +91,7 @@ public class RoutingRule {
                 conds += ", " + i.toString();
             else
                 conds += i.toString();
-        return String.format("%s => %s \"%s\"", conds, typestr, m_receiver);
+        return String.format( "%s => %s \"%s\"", conds, typestr, m_receiver );
     }
 
     private Vector<Condition> m_conditions;

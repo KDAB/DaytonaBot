@@ -7,13 +7,12 @@ public class Message {
 
     public static Message createPoison() {
         Message msg = new Message();
-        msg.setProperty("com.kdab.restbot.control", "poison");
+        msg.setProperty( "com.kdab.restbot.control", "poison" );
         return msg;
     }
 
     enum ReceiverType {
-        User,
-        Room
+        User, Room
     }
 
     class Receiver {
@@ -32,8 +31,8 @@ public class Message {
     }
 
     public boolean isPoison() {
-        final String v = property("com_kdab_restbot_control");
-        return v != null && v.equals("poison");
+        final String v = property( "com_kdab_restbot_control" );
+        return v != null && v.equals( "poison" );
     }
 
     public final Vector<Receiver> receivers() {
@@ -41,19 +40,19 @@ public class Message {
     }
 
     public final void addReceiver( String receiver, ReceiverType type ) {
-        m_receivers.add(new Receiver(receiver, type));
+        m_receivers.add( new Receiver( receiver, type ) );
     }
 
     public final String text() {
-        return property("text");
+        return property( "text" );
     }
 
     public final String property( String k ) {
-        return m_properties.get(k);
+        return m_properties.get( k );
     }
 
     public final void setProperty( String k, String v ) {
-        m_properties.put(k, v);
+        m_properties.put( k, v );
     }
 
     private Vector<Receiver> m_receivers;

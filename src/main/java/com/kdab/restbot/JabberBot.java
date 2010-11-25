@@ -28,7 +28,7 @@ public class JabberBot implements Runnable {
             login();
             joinRooms();
         } catch ( XMPPException e ) {
-            System.err.println(e);
+            System.err.println( e );
             // TODO how to report?
         }
         try {
@@ -39,9 +39,9 @@ public class JabberBot implements Runnable {
                     return;
                 }
                 try {
-                    send(msg);
+                    send( msg );
                 } catch ( XMPPException e ) {
-                    System.err.println(e);
+                    System.err.println( e );
                     // TODO how to report?
                 }
             }
@@ -58,12 +58,12 @@ public class JabberBot implements Runnable {
             assert (!rec.isEmpty());
 
             if ( i.type == Message.ReceiverType.User ) {
-                Chat chat = m_connection.getChatManager().createChat(rec, null);
-                chat.sendMessage(msg.text());
+                Chat chat = m_connection.getChatManager().createChat( rec, null );
+                chat.sendMessage( msg.text() );
             } else {
-                MultiUserChat c = m_rooms.get(rec);
+                MultiUserChat c = m_rooms.get( rec );
                 if ( c != null ) {
-                    c.sendMessage(msg.text());
+                    c.sendMessage( msg.text() );
                 } else {
                     // report?
                 }
@@ -73,15 +73,16 @@ public class JabberBot implements Runnable {
 
     private void login() throws XMPPException {
         assert (m_connection == null);
-        final int magic = new Random().nextInt(1000);
-        final ConnectionConfiguration connconf = new ConnectionConfiguration(m_account.getServer(), m_account.getPort());
-        connconf.setSecurityMode(SecurityMode.required);
-        connconf.setSendPresence(true);
+        final int magic = new Random().nextInt( 1000 );
+        final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.getServer(), m_account
+                .getPort() );
+        connconf.setSecurityMode( SecurityMode.required );
+        connconf.setSendPresence( true );
 
         try {
-            m_connection = new XMPPConnection(connconf);
+            m_connection = new XMPPConnection( connconf );
             m_connection.connect();
-            m_connection.login(m_account.getUser(), m_account.getPassword(), "RestBot" + magic);
+            m_connection.login( m_account.getUser(), m_account.getPassword(), "RestBot" + magic );
         } catch ( XMPPException e ) {
             // TODO: check if reset to null is enough for cleanup
             m_connection = null;
@@ -91,10 +92,10 @@ public class JabberBot implements Runnable {
 
     private void joinRooms() throws XMPPException {
         for ( String i : m_roomsToJoin ) {
-            MultiUserChat c = new MultiUserChat(m_connection, i);
-            c.join(m_nick);
-            c.changeAvailabilityStatus("Yo.", Presence.Mode.available);
-            m_rooms.put(i, c);
+            MultiUserChat c = new MultiUserChat( m_connection, i );
+            c.join( m_nick );
+            c.changeAvailabilityStatus( "Yo.", Presence.Mode.available );
+            m_rooms.put( i, c );
         }
     }
 
