@@ -25,23 +25,26 @@ public class Parser implements Runnable {
 		try {
 			while ( true ) {
 				byte[] raw = m_in.take();
-				parseAndPut( raw );
+				if ( !parseAndPut( raw ) ) //poison -> shutdown
+					return;
 			}
 		} catch ( InterruptedException e ) {
 			Thread.currentThread().interrupt();
 		}
 	}
 
-	private void parseAndPut( byte[] raw ) throws InterruptedException {
+	private boolean parseAndPut( byte[] raw ) throws InterruptedException {
 		Message msg = null;
 		try {
 			msg = parse( raw );
 		} catch ( SAXException e ) {				
 			System.err.println( e );
-			return;
+			return true;
 		}
 
+		final boolean isPoison = msg.isPoison();
 		m_out.put( msg );
+		return !isPoison;
 	}
 	
 	private Message parse( byte[] raw ) throws SAXException {

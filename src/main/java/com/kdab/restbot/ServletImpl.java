@@ -17,6 +17,9 @@ import com.kdab.restbot.Router;
 
 public class ServletImpl extends HttpServlet {
 	public ServletImpl() {
+	}
+	
+	public void init( ServletConfig cfg ) {
 		Configuration config = new Configuration();
 		BlockingQueue<byte[]> raw = new ArrayBlockingQueue<byte[]>( 1000 );
 		BlockingQueue<Message> parsed = new ArrayBlockingQueue<Message>( 1000 );
@@ -28,13 +31,22 @@ public class ServletImpl extends HttpServlet {
 		new Thread( r ).start();
 		new Thread( b ).start();
 
-		m_out = raw;
+		m_out = raw;		
+	}
+	
+	public void destroy() {
+		//send poison message to shutdown the runnables
+		final byte[] poison = "<message><com_kdab_restbot_control>poison</com_kdab_restbot_control></message>".getBytes();
+		try {
+			m_out.put( poison );
+		} catch ( InterruptedException e ) {
+			Thread.currentThread().interrupt();
+		}
 	}
 	
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
-        throws ServletException, IOException {
-    
+        throws ServletException, IOException { 
         PrintWriter out = response.getWriter();
         out.println( "Use PUT to deliver content to notify" );
         out.flush();
@@ -57,12 +69,11 @@ public class ServletImpl extends HttpServlet {
     	try {
     		m_out.put( ba );
     	} catch ( InterruptedException e ) {
-    		//TODO
-    		error = e.toString();
+			Thread.currentThread().interrupt();
     	}
     	
     	PrintWriter out = response.getWriter();
-    	out.println( "Delivered." + error );
+    	out.println( "Message accepted." + error );
     	out.flush();
     	out.close();
     }

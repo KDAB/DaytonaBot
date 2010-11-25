@@ -31,7 +31,7 @@ public class Message {
 	}
 	
 	public boolean isPoison() {
-		final String v = property( "com.kdab.restbot.control" );
+		final String v = property( "com_kdab_restbot_control" );
 		return v != null && v.equals( "poison" );
 	}
 	

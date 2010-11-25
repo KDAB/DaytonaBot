@@ -14,8 +14,9 @@ public class Router implements Runnable {
 		try {
 			while ( true ) {	
 				final Message m = m_in.take();
+				final boolean poison = m.isPoison();
 				route( m );						
-				if ( m.isPoison() )
+				if ( poison )
 					return;
 			}
 		} catch ( InterruptedException e ) {
