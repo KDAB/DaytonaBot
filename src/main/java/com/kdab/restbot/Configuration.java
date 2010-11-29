@@ -69,7 +69,7 @@ public class Configuration {
         m_nick = props.getProperty( "jabber.room.nick", "RESTBot" );
         final int ruleCount = Integer.parseInt( throwIfNull( props, "jabber.routingRules.count" ) );
         m_routingRules = new Vector<RoutingRule>();
-        for ( int i = 0; i < roomCount; ++i )
+        for ( int i = 0; i < ruleCount; ++i )
             m_routingRules.add( new RoutingRule( throwIfNull( props, "jabber.routingRules.n" + i ) ) );
     }
 
