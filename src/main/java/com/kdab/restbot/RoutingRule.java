@@ -124,7 +124,7 @@ public class RoutingRule {
                 conds += ", " + i.toString();
             else
                 conds += i.toString();
-        return String.format( "%s => %s \"%s\"", conds, typestr, m_receiver );
+        return String.format( "%s => %s %s", conds, typestr, m_receiver );
     }
 
     private Vector<Condition> m_conditions;
