@@ -62,12 +62,12 @@ public class Configuration {
         final String password = throwIfNull( props, "jabber.password" );
         final int port = Integer.parseInt( throwIfNull( props, "jabber.port" ) );
         m_account = new Account( user, server, port, password );
-        final int roomCount = Integer.parseInt( throwIfNull( props, "jabber.roomsToJoin.count" ) );
+        final int roomCount = Integer.parseInt( props.getProperty( "jabber.roomsToJoin.count", "0" ) );
         m_roomsToJoin = new Vector<String>();
         for ( int i = 0; i < roomCount; ++i )
             m_roomsToJoin.add( throwIfNull( props, "jabber.roomToJoin.n" + i ) );
-        m_nick = props.getProperty( "jabber.room.nick", "RESTBot" );
-        final int ruleCount = Integer.parseInt( throwIfNull( props, "jabber.routingRules.count" ) );
+        m_nick = props.getProperty( "jabber.room.nick", "PutBot" );
+        final int ruleCount = Integer.parseInt( props.getProperty( "jabber.routingRules.count", "0" ) );
         m_routingRules = new Vector<RoutingRule>();
         for ( int i = 0; i < ruleCount; ++i )
             m_routingRules.add( new RoutingRule( throwIfNull( props, "jabber.routingRules.n" + i ) ) );
