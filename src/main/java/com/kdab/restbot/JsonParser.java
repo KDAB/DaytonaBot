@@ -21,14 +21,8 @@
 package com.kdab.restbot;
 
 import java.util.concurrent.BlockingQueue;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 
 public class JsonParser implements Runnable {

@@ -20,12 +20,13 @@
 
 package com.kdab.restbot;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Vector;
 
 class InvalidConfigurationException extends Exception {
+    private static final long serialVersionUID = 592054164059521060L;
+
     public InvalidConfigurationException( String msg ) {
         super( msg );
     }

@@ -44,6 +44,8 @@ import com.kdab.restbot.Router;
 import com.kdab.restbot.XmlParser;
 
 public class ServletImpl extends HttpServlet {
+    private static final long serialVersionUID = 8622072647253890417L;
+
     public ServletImpl() {
         m_queuesByFormat = new HashMap<String, BlockingQueue<byte[]>>();
     }
