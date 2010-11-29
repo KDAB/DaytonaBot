@@ -24,13 +24,6 @@ import java.util.HashMap;
 import java.util.Vector;
 
 public class Message {
-
-    public static Message createPoison() {
-        Message msg = new Message();
-        msg.setProperty( "com.kdab.restbot.control", "poison" );
-        return msg;
-    }
-
     enum ReceiverType {
         User, Room
     }
@@ -48,11 +41,6 @@ public class Message {
     public Message() {
         m_properties = new HashMap<String, String>();
         m_receivers = new Vector<Receiver>();
-    }
-
-    public boolean isPoison() {
-        final String v = property( "com_kdab_restbot_control" );
-        return v != null && v.equals( "poison" );
     }
 
     public final Vector<Receiver> receivers() {

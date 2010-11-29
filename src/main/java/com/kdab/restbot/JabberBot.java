@@ -54,10 +54,6 @@ public class JabberBot implements Runnable {
         try {
             while ( true ) {
                 Message msg = m_in.take();
-                if ( msg.isPoison() ) {
-                    logout();
-                    return;
-                }
                 try {
                     send( msg );
                 } catch ( XMPPException e ) {

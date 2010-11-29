@@ -45,31 +45,26 @@ public class XmlParser implements Runnable {
         try {
             while ( true ) {
                 byte[] raw = m_in.take();
-                if ( !parseAndPut( raw ) ) // poison -> shutdown
-                    return;
+                parseAndPut( raw );
             }
         } catch ( InterruptedException e ) {
             Thread.currentThread().interrupt();
         }
     }
 
-    private boolean parseAndPut( byte[] raw ) throws InterruptedException {
+    private void parseAndPut( byte[] raw ) throws InterruptedException {
         Message msg = null;
         try {
             msg = parse( raw );
         } catch ( SAXException e ) {
-            System.err.println( e );
-            return true;
+            System.err.println( e ); //TODO log/report?
+            return;
         }
 
-        final boolean isPoison = msg.isPoison();
         m_out.put( msg );
-        return !isPoison;
     }
 
     private Message parse( byte[] raw ) throws SAXException {
-        if ( raw == null )
-            return Message.createPoison();
         final Message msg = new Message();
         DocumentBuilder builder = null;
         try {
