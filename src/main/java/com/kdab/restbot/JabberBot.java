@@ -27,14 +27,18 @@ import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionCreationListener;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
-public class JabberBot implements Runnable {
+public class JabberBot implements Runnable, ChatManagerListener, MessageListener {
     public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> roomsToJoin ) {
         m_in = in;
         m_account = account;
@@ -70,11 +74,12 @@ public class JabberBot implements Runnable {
     private void send( Message msg ) throws XMPPException {
         for ( Message.Receiver i : msg.receivers() ) {
             final String rec = i.receiver;
-            assert (rec != null);
-            assert (!rec.isEmpty());
+            assert( rec != null );
+            assert( !rec.isEmpty() );
 
             if ( i.type == Message.ReceiverType.User ) {
                 Chat chat = m_connection.getChatManager().createChat( rec, null );
+                chat.addMessageListener( this );
                 chat.sendMessage( msg.text() );
             } else {
                 MultiUserChat c = m_rooms.get( rec );
@@ -88,17 +93,19 @@ public class JabberBot implements Runnable {
     }
 
     private void login() throws XMPPException {
-        assert (m_connection == null);
+        assert( m_connection == null );
         final int magic = new Random().nextInt( 1000 );
         final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.server(), m_account
                 .port() );
         connconf.setSecurityMode( SecurityMode.required );
         connconf.setSendPresence( true );
+        connconf.setReconnectionAllowed( true );
 
         try {
             m_connection = new XMPPConnection( connconf );
             m_connection.connect();
             m_connection.login( m_account.user(), m_account.password(), "RestBot" + magic );
+            m_connection.getChatManager().addChatListener(  this );
         } catch ( XMPPException e ) {
             m_connection.disconnect();
             m_connection = null;
@@ -126,4 +133,13 @@ public class JabberBot implements Runnable {
     private XMPPConnection m_connection;
     private Map<String, MultiUserChat> m_rooms;
 
+    public void chatCreated( Chat chat, boolean arg1 ) {
+        // TODO check arg1
+        chat.addMessageListener(  this );
+    }
+
+    public void processMessage( Chat chat, org.jivesoftware.smack.packet.Message msg ) {
+        final String from = msg.getFrom();
+        final String body = msg.getBody();
+    }
 }
