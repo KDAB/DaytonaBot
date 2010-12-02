@@ -1,7 +1,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.kdab.restbot</groupId>
-  <artifactId>restbot</artifactId>
+  <groupId>com.kdab.daytona</groupId>
+  <artifactId>daytona</artifactId>
   <version>0.0.1</version>
   <packaging>war</packaging>
   <build>

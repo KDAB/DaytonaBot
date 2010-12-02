@@ -1,14 +1,14 @@
 /*
-    This file is part of PutBot.
+    This file is part of Daytona.
 
     Copyright (c) 2010 Frank Osterfeld <frank.osterfeld@kdab.com>
 
-    PutBot is free software; you can redistribute it and/or modify
+    Daytona is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
-    PutBot is distributed in the hope that it will be useful,
+    Daytona is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     General Public License for more details.
@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-package com.kdab.restbot;
+package com.kdab.daytona;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +29,6 @@ import java.util.concurrent.BlockingQueue;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.ConnectionCreationListener;
-import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -39,10 +37,12 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 public class JabberBot implements Runnable, ChatManagerListener, MessageListener {
-    public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> roomsToJoin ) {
+    public JabberBot( BlockingQueue<Message> in, BlockingQueue<Message> internalOut, Account account, String nick, Vector<String> admins, Vector<String> roomsToJoin ) {
         m_in = in;
+        m_internalOut = internalOut;
         m_account = account;
         m_roomsToJoin = roomsToJoin;
+        m_admins = admins;
         m_nick = nick;
         m_rooms = new HashMap<String, MultiUserChat>();
     }
@@ -127,8 +127,10 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
     }
 
     private BlockingQueue<Message> m_in;
+    private BlockingQueue<Message> m_internalOut;
     private Account m_account;
     private Vector<String> m_roomsToJoin;
+    private Vector<String> m_admins;
     private String m_nick;
     private XMPPConnection m_connection;
     private Map<String, MultiUserChat> m_rooms;
@@ -138,8 +140,39 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
         chat.addMessageListener(  this );
     }
 
+
+    private String helpText( String cmd ) {
+        return "Available commands: :help, :list-rules, :add-rule, :delete-rule";
+    }
+
+    private boolean requiresAdminRights( String cmd ) {
+        return !cmd.equals( "help" );
+    }
+
+    private static String commandName( String msg ) {
+        return "help"; //TODO
+    }
+
+
     public void processMessage( Chat chat, org.jivesoftware.smack.packet.Message msg ) {
         final String from = msg.getFrom();
         final String body = msg.getBody();
+
+        final String cmd = commandName( body );
+
+        try {
+            if ( requiresAdminRights( cmd ) && !m_admins.contains( from ) ) {
+                chat.sendMessage( "You are not authorized to perform this command." );
+                return;
+            }
+            if ( cmd.equals( "help") ) {
+                chat.sendMessage( helpText( "TODO" ) );
+                return;
+            }
+        } catch ( XMPPException e ) {
+            //TODO log
+        }
+        Message imsg = new Message();
+        imsg.setProperty( "kdab_com_daytona_internal_command" , cmd );
     }
 }

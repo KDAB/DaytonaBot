@@ -1,14 +1,14 @@
 /*
-    This file is part of PutBot.
+    This file is part of Daytona.
 
     Copyright (c) 2010 Frank Osterfeld <frank.osterfeld@kdab.com>
 
-    PutBot is free software; you can redistribute it and/or modify
+    Daytona is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
-    PutBot is distributed in the hope that it will be useful,
+    Daytona is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     General Public License for more details.
@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-package com.kdab.restbot;
+package com.kdab.daytona;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,12 +36,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-import com.kdab.restbot.Configuration;
-import com.kdab.restbot.JabberBot;
-import com.kdab.restbot.JsonParser;
-import com.kdab.restbot.Message;
-import com.kdab.restbot.Router;
-import com.kdab.restbot.XmlParser;
+import com.kdab.daytona.Configuration;
+import com.kdab.daytona.JabberBot;
+import com.kdab.daytona.JsonParser;
+import com.kdab.daytona.Message;
+import com.kdab.daytona.Router;
+import com.kdab.daytona.XmlParser;
 
 public class ServletImpl extends HttpServlet {
     private static final long serialVersionUID = 8622072647253890417L;
@@ -62,7 +62,7 @@ public class ServletImpl extends HttpServlet {
         XmlParser xp = new XmlParser( rawXml, parsed );
         JsonParser jp = new JsonParser( rawJson, parsed );
         Router r = new Router( parsed, routed, config.routingRules() );
-        JabberBot b = new JabberBot( routed, config.account(), config.nick(), config.roomsToJoin() );
+        JabberBot b = new JabberBot( routed, config.account(), config.nick(), config.admins(), config.roomsToJoin() );
         m_workers = new Vector<Thread>();
         m_workers.add( new Thread( xp ) );
         m_workers.add( new Thread( jp ) );

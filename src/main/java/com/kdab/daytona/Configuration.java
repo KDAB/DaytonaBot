@@ -1,14 +1,14 @@
 /*
-    This file is part of PutBot.
+    This file is part of Daytona.
 
     Copyright (c) 2010 Frank Osterfeld <frank.osterfeld@kdab.com>
 
-    PutBot is free software; you can redistribute it and/or modify
+    Daytona is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3 of the License, or
     (at your option) any later version.
 
-    PutBot is distributed in the hope that it will be useful,
+    Daytona is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     General Public License for more details.
@@ -18,7 +18,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-package com.kdab.restbot;
+package com.kdab.daytona;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -34,7 +34,7 @@ class InvalidConfigurationException extends Exception {
 
 public class Configuration {
     public Configuration() {
-        m_nick = "RESTBot";
+        m_nick = "Daytona";
         m_roomsToJoin = new Vector<String>();
         m_roomsToJoin.add( "royalblue@conference.kdab.com" );
         m_routingRules = new Vector<RoutingRule>();
@@ -47,6 +47,8 @@ public class Configuration {
         m_routingRules.add( rule1 );
         m_routingRules.add( rule2 );
         m_account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
+        m_admins = new Vector<String>();
+        m_admins.add( "frank@kdab.com" );
     }
 
     static String throwIfNull( Properties prop, String p ) throws InvalidConfigurationException {
@@ -66,11 +68,15 @@ public class Configuration {
         m_roomsToJoin = new Vector<String>();
         for ( int i = 0; i < roomCount; ++i )
             m_roomsToJoin.add( throwIfNull( props, "jabber.roomToJoin.n" + i ) );
-        m_nick = props.getProperty( "jabber.room.nick", "PutBot" );
+        m_nick = props.getProperty( "jabber.room.nick", "Daytona" );
         final int ruleCount = Integer.parseInt( props.getProperty( "jabber.routingRules.count", "0" ) );
         m_routingRules = new Vector<RoutingRule>();
         for ( int i = 0; i < ruleCount; ++i )
             m_routingRules.add( new RoutingRule( throwIfNull( props, "jabber.routingRules.n" + i ) ) );
+        final int adminCount = Integer.parseInt( props.getProperty( "jabber.admins.count", "0" ) );
+        m_admins = new Vector<String>();
+        for ( int i = 0; i < adminCount; ++i )
+            m_admins.add( throwIfNull( props, "jabber.admins.n" + i ) );
     }
 
     public final Account account() {
@@ -85,11 +91,16 @@ public class Configuration {
         return m_nick;
     }
 
+    public final Vector<String> admins() {
+        return m_admins;
+    }
+
     public final Vector<RoutingRule> routingRules() {
         return m_routingRules;
     }
 
     private Vector<String> m_roomsToJoin;
+    private Vector<String> m_admins;
     private Vector<RoutingRule> m_routingRules;
     private Account m_account;
     private String m_nick;

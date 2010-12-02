@@ -3,11 +3,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
   http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-	<display-name>RESTBot</display-name>
+	<display-name>Daytona</display-name>
         
 	<servlet>
 		<servlet-name>TheServlet</servlet-name>
-		<servlet-class>com.kdab.restbot.ServletImpl</servlet-class>
+		<servlet-class>com.kdab.daytona.ServletImpl</servlet-class>
                 <load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
