@@ -37,9 +37,8 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 public class JabberBot implements Runnable, ChatManagerListener, MessageListener {
-    public JabberBot( BlockingQueue<Message> in, BlockingQueue<Message> internalOut, Account account, String nick, Vector<String> admins, Vector<String> roomsToJoin ) {
+    public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> admins, Vector<String> roomsToJoin ) {
         m_in = in;
-        m_internalOut = internalOut;
         m_account = account;
         m_roomsToJoin = roomsToJoin;
         m_admins = admins;
@@ -127,7 +126,6 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
     }
 
     private BlockingQueue<Message> m_in;
-    private BlockingQueue<Message> m_internalOut;
     private Account m_account;
     private Vector<String> m_roomsToJoin;
     private Vector<String> m_admins;

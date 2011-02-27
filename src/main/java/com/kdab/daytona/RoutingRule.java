@@ -22,6 +22,18 @@ package com.kdab.daytona;
 
 import java.util.Vector;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+class InvalidRuleSyntaxException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public InvalidRuleSyntaxException( String msg ) {
+        super( msg );
+    }
+}
+
 interface BinaryPredicate {
     public boolean isTrue( String lhs, String rhs );
 
@@ -71,6 +83,10 @@ class Condition {
         return String.format( "%s :%s \"%s\"", m_property, m_pred.name(), m_value );
     }
 
+    public String toJSonString() {
+        return "TODO";
+    }
+
     private String m_property;
     private String m_value;
     private BinaryPredicate m_pred;
@@ -83,15 +99,41 @@ public class RoutingRule {
         m_receiver = receiver;
     }
 
-    public RoutingRule( String str ) {
 
-        //TODO
-        // Receiver := JID
-        // ReceiverType := "Room" | "User"
-        // Predicate =  ":contains"|":equals'"
-        // Property = A-Za-z0-9._-
-        // Condition := Property Predicate \"String\"
-        // Rule := Condition [, Condition]* => ReceiverType Receiver
+    private static BinaryPredicate parsePredicate( String str ) {
+        if ( "contains".equals(  str ) )
+            return new Contains();
+        else if ( "equals".equals( str ) )
+            return new Equals();
+        return null;
+    }
+
+    public RoutingRule( String str ) throws InvalidRuleSyntaxException {
+        m_conditions = new Vector<Condition>();
+        try {
+            JSONObject map = new JSONObject( str );
+            JSONArray condition = map.getJSONArray( "condition" );
+            if ( condition.length() != 3 )
+                throw new InvalidRuleSyntaxException("\"condition\" must be a list of size 3 (property, predicate, value)");
+            String prop = condition.getString( 0 );
+            BinaryPredicate pred = parsePredicate( condition.getString( 1 ) );
+            if ( pred == null )
+                throw new InvalidRuleSyntaxException( "Unknown predicate: " + condition.getString( 1 ) );
+            String val = condition.getString( 2 );
+            m_conditions.add( new Condition( prop, pred, val ) );
+            if ( map.has( "room" ) ) {
+                m_receiverType = Message.ReceiverType.Room;
+                m_receiver = map.getString( "room" );
+            }
+            else if ( map.has( "user" ) ) {
+                m_receiverType = Message.ReceiverType.User;
+                m_receiver = map.getString( "user" );
+            }
+            else
+                throw new InvalidRuleSyntaxException( "Rule must have either a \"room\" or \"user\" property to specify the receiver." );
+        } catch ( JSONException e ) {
+            throw new InvalidRuleSyntaxException( "Could not parse rule, invalid JSON or unexpected structure: " + e.getMessage() );
+        }
     }
 
     public String receiver() {
