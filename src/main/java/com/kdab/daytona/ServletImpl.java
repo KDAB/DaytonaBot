@@ -20,10 +20,12 @@
 
 package com.kdab.daytona;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -52,7 +54,20 @@ public class ServletImpl extends HttpServlet {
 
     @Override
     public void init( ServletConfig cfg ) {
-        Configuration config = new Configuration();
+        Configuration config = null;
+        try {
+            Properties props = new Properties();
+            props.load( new FileInputStream( "/Users/frank/daytona-config.xml" ) ); //TODO where to put the file?
+            config = new Configuration( props );
+        } catch ( IOException e ) {
+            System.err.println( e.getMessage() );
+            //TODO help, do something sensible
+            return;
+        } catch ( InvalidConfigurationException e ) {
+            System.err.println( e.getMessage() );
+            //TODO help, do something sensible
+            return;
+        }
         BlockingQueue<byte[]> rawXml = new ArrayBlockingQueue<byte[]>( 1000 );
         BlockingQueue<byte[]> rawJson = new ArrayBlockingQueue<byte[]>( 1000 );
         m_queuesByFormat.put( "xml", rawXml );

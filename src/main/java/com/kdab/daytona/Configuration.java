@@ -33,36 +33,18 @@ class InvalidConfigurationException extends Exception {
 }
 
 public class Configuration {
-    public Configuration() {
-        m_nick = "Daytona";
-        m_roomsToJoin = new Vector<String>();
-        m_roomsToJoin.add( "royalblue@conference.kdab.com" );
-        m_routingRules = new Vector<RoutingRule>();
-        Vector<Condition> cond1 = new Vector<Condition>();
-        cond1.add( new Condition( "project", new Equals(), "frankskram" ) );
-        RoutingRule rule1 = new RoutingRule( cond1, Message.ReceiverType.User, "frank@kdab.com" );
-        Vector<Condition> cond2 = new Vector<Condition>();
-        cond2.add( new Condition( "project", new Equals(), "make-o-matic" ) );
-        RoutingRule rule2 = new RoutingRule( cond2, Message.ReceiverType.Room, "royalblue@conference.kdab.com" );
-        m_routingRules.add( rule1 );
-        m_routingRules.add( rule2 );
-        m_account = new Account( "blobbot", "kdab.com", 5222, "bbmtwgr!" );
-        m_admins = new Vector<String>();
-        m_admins.add( "frank@kdab.com" );
-    }
-
-    static String throwIfNull( Properties prop, String p ) throws InvalidConfigurationException {
+    private static String throwIfNull( Properties prop, String p ) throws InvalidConfigurationException {
         final String v = prop.getProperty( p );
         if ( v == null )
             throw new InvalidConfigurationException( String.format( "Required property \"%s\" not found!", p ) );
         return v;
     }
 
-    public Configuration( Properties props ) throws IOException, InvalidConfigurationException {
+    public Configuration( Properties props ) throws InvalidConfigurationException {
         final String user = throwIfNull( props, "jabber.user" );
         final String server = throwIfNull( props, "jabber.server" );
         final String password = throwIfNull( props, "jabber.password" );
-        final int port = Integer.parseInt( throwIfNull( props, "jabber.port" ) );
+        final int port = Integer.parseInt( props.getProperty( "jabber.port", "5222" ) );
         m_account = new Account( user, server, port, password );
         final int roomCount = Integer.parseInt( props.getProperty( "jabber.roomsToJoin.count", "0" ) );
         m_roomsToJoin = new Vector<String>();
