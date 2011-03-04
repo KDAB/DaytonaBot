@@ -148,7 +148,15 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
     }
 
     private static String commandName( String msg ) {
-        return "help"; //TODO
+        String trimmed = msg.trim();
+        if ( !trimmed.startsWith( ":" ) )
+            return null;
+        trimmed = trimmed.substring( 1 );
+        String[] split = trimmed.split( " ", 2 );
+        if ( split.length > 0 )
+            return split[0];
+        else
+            return null;
     }
 
 
@@ -159,11 +167,16 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
         final String cmd = commandName( body );
 
         try {
-            if ( requiresAdminRights( cmd ) && !m_admins.contains( from ) ) {
-                chat.sendMessage( "You are not authorized to perform this command." );
+            if ( cmd == null ) {
+                chat.sendMessage( helpText( "TODO" ) );
                 return;
             }
-            if ( cmd.equals( "help") ) {
+
+            if ( requiresAdminRights( cmd ) && !m_admins.contains( from ) ) {
+                chat.sendMessage( String.format( "You are not authorized to perform the command %s.", cmd ) );
+                return;
+            }
+            if ( cmd.equals( "help" ) ) {
                 chat.sendMessage( helpText( "TODO" ) );
                 return;
             }

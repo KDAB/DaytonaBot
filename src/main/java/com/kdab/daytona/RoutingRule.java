@@ -24,7 +24,10 @@ import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONML;
 import org.json.JSONObject;
+
+import com.kdab.daytona.Message.ReceiverType;
 
 class InvalidRuleSyntaxException extends Exception {
     private static final long serialVersionUID = 1L;
@@ -78,13 +81,31 @@ class Condition {
         return m_pred.isTrue( p, m_value );
     }
 
-    @Override
-    public String toString() {
-        return String.format( "%s :%s \"%s\"", m_property, m_pred.name(), m_value );
+    private static BinaryPredicate parsePredicate( String str ) {
+        if ( "contains".equals(  str ) )
+            return new Contains();
+        else if ( "equals".equals( str ) )
+            return new Equals();
+        return null;
     }
 
-    public String toJSonString() {
-        return "TODO";
+    public static Condition fromJSon( JSONArray condition ) throws JSONException, InvalidRuleSyntaxException {
+        if ( condition.length() != 3 )
+            throw new InvalidRuleSyntaxException("\"condition\" must be a list of size 3 (property, predicate, value)");
+        String prop = condition.getString( 0 );
+        BinaryPredicate pred = parsePredicate( condition.getString( 1 ) );
+        if ( pred == null )
+            throw new InvalidRuleSyntaxException( "Unknown predicate: " + condition.getString( 1 ) );
+        String val = condition.getString( 2 );
+        return new Condition( prop, pred, val );
+    }
+
+    public JSONArray toJSon() throws JSONException {
+        JSONArray cnd = new JSONArray();
+        cnd.put( m_property );
+        cnd.put( m_pred.name() );
+        cnd.put(  m_value );
+        return cnd;
     }
 
     private String m_property;
@@ -99,28 +120,21 @@ public class RoutingRule {
         m_receiver = receiver;
     }
 
-
-    private static BinaryPredicate parsePredicate( String str ) {
-        if ( "contains".equals(  str ) )
-            return new Contains();
-        else if ( "equals".equals( str ) )
-            return new Equals();
-        return null;
-    }
-
     public RoutingRule( String str ) throws InvalidRuleSyntaxException {
         m_conditions = new Vector<Condition>();
         try {
             JSONObject map = new JSONObject( str );
-            JSONArray condition = map.getJSONArray( "condition" );
-            if ( condition.length() != 3 )
-                throw new InvalidRuleSyntaxException("\"condition\" must be a list of size 3 (property, predicate, value)");
-            String prop = condition.getString( 0 );
-            BinaryPredicate pred = parsePredicate( condition.getString( 1 ) );
-            if ( pred == null )
-                throw new InvalidRuleSyntaxException( "Unknown predicate: " + condition.getString( 1 ) );
-            String val = condition.getString( 2 );
-            m_conditions.add( new Condition( prop, pred, val ) );
+            if ( map.has( "condition" ) ) {
+                m_conditions.add( Condition.fromJSon( map.getJSONArray( "condition" ) ) );
+            } else if ( map.has( "conditions" ) ) {
+                JSONArray cnds = map.getJSONArray( "conditions" );
+                for ( int i = 0; i < cnds.length(); ++i )
+                    m_conditions.add( Condition.fromJSon( cnds.getJSONArray( i ) ) );
+            }
+
+            if ( m_conditions.isEmpty() )
+                throw new InvalidRuleSyntaxException( "Rule must have at least one condition." );
+
             if ( map.has( "room" ) ) {
                 m_receiverType = Message.ReceiverType.Room;
                 m_receiver = map.getString( "room" );
@@ -134,6 +148,40 @@ public class RoutingRule {
         } catch ( JSONException e ) {
             throw new InvalidRuleSyntaxException( "Could not parse rule, invalid JSON or unexpected structure: " + e.getMessage() );
         }
+    }
+
+    public String toPrettyString() {
+        try {
+            return toJSon().toString( 2 );
+        } catch ( JSONException e ) {
+            return "";
+        }
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return toJSon().toString();
+        } catch ( JSONException e ) {
+            return "";
+        }
+    }
+
+    private JSONObject toJSon() throws JSONException {
+        JSONObject map = new JSONObject();
+        if ( !m_conditions.isEmpty() ) {
+            if ( m_conditions.size() == 1 )
+                map.put( "condition", m_conditions.get( 0 ).toJSon() );
+            else {
+                JSONArray cnds = new JSONArray();
+                for ( Condition i : m_conditions )
+                    cnds.put( i.toJSon() );
+                map.put(  "conditions", cnds );
+            }
+        }
+        String reckey = m_receiverType == ReceiverType.Room ? "room" : "user";
+        map.put(  reckey,m_receiver );
+        return map;
     }
 
     public String receiver() {
@@ -154,19 +202,6 @@ public class RoutingRule {
             if ( !i.satisfiedBy( m ) )
                 return false;
         return true;
-    }
-
-    @Override
-    public String toString() {
-        String typestr = m_receiverType == Message.ReceiverType.Room ? "room" : "user";
-
-        String conds = "";
-        for ( Condition i : m_conditions )
-            if ( !conds.isEmpty() )
-                conds += ", " + i.toString();
-            else
-                conds += i.toString();
-        return String.format( "%s => %s %s", conds, typestr, m_receiver );
     }
 
     private Vector<Condition> m_conditions;

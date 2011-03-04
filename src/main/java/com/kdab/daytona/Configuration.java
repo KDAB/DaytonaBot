@@ -71,8 +71,12 @@ public class Configuration {
         m_nick = props.getProperty( "jabber.room.nick", "Daytona" );
         final int ruleCount = Integer.parseInt( props.getProperty( "jabber.routingRules.count", "0" ) );
         m_routingRules = new Vector<RoutingRule>();
-        for ( int i = 0; i < ruleCount; ++i )
-            m_routingRules.add( new RoutingRule( throwIfNull( props, "jabber.routingRules.n" + i ) ) );
+        try {
+            for ( int i = 0; i < ruleCount; ++i )
+                m_routingRules.add( new RoutingRule( throwIfNull( props, "jabber.routingRules.n" + i ) ) );
+        } catch ( InvalidRuleSyntaxException irse ) {
+            throw new InvalidConfigurationException( "Invalid routing rule: " + irse.getMessage() );
+        }
         final int adminCount = Integer.parseInt( props.getProperty( "jabber.admins.count", "0" ) );
         m_admins = new Vector<String>();
         for ( int i = 0; i < adminCount; ++i )
