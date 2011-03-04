@@ -103,7 +103,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
         try {
             m_connection = new XMPPConnection( connconf );
             m_connection.connect();
-            m_connection.login( m_account.user(), m_account.password(), "RestBot" + magic );
+            m_connection.login( m_account.user(), m_account.password(), "Daytona" + magic );
             m_connection.getChatManager().addChatListener(  this );
         } catch ( XMPPException e ) {
             m_connection.disconnect();
