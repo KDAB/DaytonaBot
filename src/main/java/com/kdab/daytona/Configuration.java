@@ -20,7 +20,6 @@
 
 package com.kdab.daytona;
 
-import java.io.IOException;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -49,7 +48,7 @@ public class Configuration {
         final int roomCount = Integer.parseInt( props.getProperty( "jabber.roomsToJoin.count", "0" ) );
         m_roomsToJoin = new Vector<String>();
         for ( int i = 0; i < roomCount; ++i )
-            m_roomsToJoin.add( throwIfNull( props, "jabber.roomToJoin.n" + i ) );
+            m_roomsToJoin.add( throwIfNull( props, "jabber.roomsToJoin.n" + i ) );
         m_nick = props.getProperty( "jabber.room.nick", "Daytona" );
         final int ruleCount = Integer.parseInt( props.getProperty( "jabber.routingRules.count", "0" ) );
         m_routingRules = new Vector<RoutingRule>();
