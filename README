@@ -1,1 +1,4 @@
-yo
+Example for curl:
+
+curl -X PUT -d @foo.json http://localhost:8080/daytona/notify?format=json
+

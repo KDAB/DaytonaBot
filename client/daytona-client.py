@@ -4,9 +4,9 @@ import urllib2
 def sendMessage( map, url ): 
 	msg = json.dumps( map )
 	opener = urllib2.build_opener( urllib2.HTTPHandler )
-	request = urllib2.Request( 'http://localhost:8080/daytona/notify?format=json', data=msg )
+	request = urllib2.Request( url, data=msg )
 	request.get_method = lambda: 'PUT'
-	url = opener.open( request )
+	urlobj = opener.open( request )
 
 
 if __name__ == "__main__":
