@@ -132,9 +132,6 @@ public class RoutingRule {
                     m_conditions.add( Condition.fromJSon( cnds.getJSONArray( i ) ) );
             }
 
-            if ( m_conditions.isEmpty() )
-                throw new InvalidRuleSyntaxException( "Rule must have at least one condition." );
-
             if ( map.has( "room" ) ) {
                 m_receiverType = Message.ReceiverType.Room;
                 m_receiver = map.getString( "room" );
