@@ -1,12 +1,49 @@
-- build Daytona:
+Daytona is a Jabber bot that receives message via HTTP and forwards them to Jabber. Daytona can be configured to route messages
+it receives to Jabber users or MUC rooms, depending on the message's properties. Daytona makes it easy to deliver messages to 
+jabber from any service that speaks HTTP (commit messages from a SCM post-commit hook being just one example).
 
-mvn build
+= Build and run Daytona =
 
-- run the bot in jetty:
+Daytona uses maven for dependency management and building. You can obtain Maven from [1].
 
-mvn jetty:run
+== Build Daytona ==
 
-How to post a message with curl:
+cd to the directory with pom.xml in it. Then run:
 
-curl -X PUT -d @foo.json http://localhost:8080/daytona/notify?format=json
+  mvn build
+
+== Configure ==
+
+See doc/daytona-config-example.cfg
+
+TODO
+
+== Run the Bot ==
+
+Daytona is written in Java and requires an application server like tomcat or jetty to run.
+The deployment can be configured in src/main/webapp/WEB-INF/web.xml.
+
+The simplest way is to run it in a stand-alone Jetty:
+
+  mvn jetty:run
+
+That's it. By default, the bot is now reachable via http://localhost:8080/daytona/notify
+
+You can test sending messages using curl [2]: 
+
+  curl -X PUT -d @example.json http://localhost:8080/daytona/notify?format=json
+
+example.json is a file with the message to send, in JSON syntax. See doc/example.json for an example.
+
+[1] http://maven.apache.org/
+[2] http://curl.haxx.se/
+
+== Messages and Message Routing ==
+
+A message is a set of key-value pairs. Daytona currently accepts messages in XML and JSON. [TODO ...]
+
+The (mandatory) string with the key 'text' is the text message sent via Jabber.
+All other propertiers can be used for filtering and routing purposes.
+
+TODO
 

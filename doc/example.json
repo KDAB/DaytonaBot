@@ -1,0 +1,6 @@
+{ "sender" : "SVN",
+  "type" : "commit",
+  "project" : "Project 1",
+  "author" : "frank",
+  "text" : "Frank * Rev. 4711, /repos/project1/src.  Oops"
+}
