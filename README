@@ -1,4 +1,12 @@
-Example for curl:
+- build Daytona:
+
+mvn build
+
+- run the bot in jetty:
+
+mvn jetty:run
+
+How to post a message with curl:
 
 curl -X PUT -d @foo.json http://localhost:8080/daytona/notify?format=json
 

@@ -37,13 +37,14 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 public class JabberBot implements Runnable, ChatManagerListener, MessageListener {
-    public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> admins, Vector<String> roomsToJoin ) {
+    public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> admins, Vector<String> roomsToJoin, Logger logger ) {
         m_in = in;
         m_account = account;
         m_roomsToJoin = roomsToJoin;
         m_admins = admins;
         m_nick = nick;
         m_rooms = new HashMap<String, MultiUserChat>();
+        m_logger = logger;
     }
 
     public void run() {
@@ -51,8 +52,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
             login();
             joinRooms();
         } catch ( XMPPException e ) {
-            System.err.println( e );
-            // TODO how to report?
+            m_logger.log( "Joining jabber failed", e );
         }
         try {
             while ( true ) {
@@ -60,8 +60,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
                 try {
                     send( msg );
                 } catch ( XMPPException e ) {
-                    System.err.println( e );
-                    // TODO how to report?
+                    m_logger.log( "Could not send jabber message", e );
                 }
             }
         } catch ( InterruptedException e ) {
@@ -85,7 +84,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
                 if ( c != null ) {
                     c.sendMessage( msg.text() );
                 } else {
-                    // report?
+                    m_logger.log( String.format( "Could not deliver message to room %s: room not joined", rec ) );
                 }
             }
         }
@@ -132,6 +131,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
     private String m_nick;
     private XMPPConnection m_connection;
     private Map<String, MultiUserChat> m_rooms;
+    private Logger m_logger;
 
     public void chatCreated( Chat chat, boolean arg1 ) {
         // TODO check arg1
@@ -181,9 +181,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
                 return;
             }
         } catch ( XMPPException e ) {
-            //TODO log
+            m_logger.log( "Could not send jabber message", e );
         }
-        Message imsg = new Message();
-        imsg.setProperty( "kdab_com_daytona_internal_command" , cmd );
     }
 }

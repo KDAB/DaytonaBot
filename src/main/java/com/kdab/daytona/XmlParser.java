@@ -36,9 +36,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XmlParser implements Runnable {
-    public XmlParser( BlockingQueue<byte[]> in, BlockingQueue<Message> out ) {
+    public XmlParser( BlockingQueue<byte[]> in, BlockingQueue<Message> out, Logger logger ) {
         m_in = in;
         m_out = out;
+        m_logger = logger;
     }
 
     public void run() {
@@ -57,7 +58,7 @@ public class XmlParser implements Runnable {
         try {
             msg = parse( raw );
         } catch ( SAXException e ) {
-            System.err.println( e ); //TODO log/report?
+            m_logger.log(  "Could not parse message", e );
             return;
         }
 
@@ -70,15 +71,13 @@ public class XmlParser implements Runnable {
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch ( ParserConfigurationException e ) {
-            System.err.println( "Could not create document builder: " + e );
-            // TODO report fatal error
+            m_logger.log( "Could not create document builder", e );
         }
         Document doc = null;
         try {
             doc = builder.parse( new ByteArrayInputStream( raw ) );
         } catch ( IOException e ) {
-            System.err.println( "Impossible IOException while reading from a byte array: " + e );
-            // TODO report fatal error
+            m_logger.log( "Impossible IOException while reading from a byte array", e );
         }
         final Element root = doc.getDocumentElement();
         final NodeList children = root.getChildNodes();
@@ -96,4 +95,5 @@ public class XmlParser implements Runnable {
 
     private BlockingQueue<byte[]> m_in;
     private BlockingQueue<Message> m_out;
+    private Logger m_logger;
 }

@@ -26,9 +26,10 @@ import org.json.JSONObject;
 
 
 public class JsonParser implements Runnable {
-    public JsonParser( BlockingQueue<byte[]> in, BlockingQueue<Message> out ) {
+    public JsonParser( BlockingQueue<byte[]> in, BlockingQueue<Message> out, Logger logger ) {
         m_in = in;
         m_out = out;
+        m_logger = logger;
     }
 
     public void run() {
@@ -47,7 +48,7 @@ public class JsonParser implements Runnable {
         try {
             msg = parse( raw );
         } catch ( JSONException e ) {
-            System.err.println( e ); //TODO log error? report somewhere?
+            m_logger.log( "Could not parse JSON", e );
             return;
         }
 
@@ -65,4 +66,5 @@ public class JsonParser implements Runnable {
 
     private BlockingQueue<byte[]> m_in;
     private BlockingQueue<Message> m_out;
+    private Logger m_logger;
 }
