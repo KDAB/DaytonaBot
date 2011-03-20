@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONML;
 import org.json.JSONObject;
 
 import com.kdab.daytona.Message.ReceiverType;
