@@ -20,23 +20,19 @@
 
 package com.kdab.daytona;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+class ParserException extends Exception {
+    private static final long serialVersionUID = 1L;
 
-public class JsonParser implements Parser {
-    public Message parse( byte[] raw ) throws ParserException {
-        try {
-            assert( raw != null );
-            final Message msg = new Message();
-            JSONObject map = new JSONObject( new String( raw ) );
-            for ( String i : JSONObject.getNames( map ) )
-                msg.setProperty( i, map.getString( i ) );
-            return msg;
-        } catch ( JSONException e ) {
-            throw new ParserException( e );
-        }
+    ParserException( String msg ) {
+        super( msg );
     }
-    public String format() {
-        return "JSON";
+
+    ParserException( Throwable t ) {
+        super( t );
     }
+}
+
+public interface Parser {
+    public Message parse( byte[] raw ) throws ParserException;
+    public String format();
 }

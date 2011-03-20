@@ -20,10 +20,7 @@
 
 package com.kdab.daytona;
 
-import java.util.concurrent.BlockingQueue;
-
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,51 +30,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-public class XmlParser implements Runnable {
-    public XmlParser( BlockingQueue<byte[]> in, BlockingQueue<Message> out, Logger logger ) {
-        m_in = in;
-        m_out = out;
-        m_logger = logger;
-    }
-
-    public void run() {
-        try {
-            while ( true ) {
-                byte[] raw = m_in.take();
-                parseAndPut( raw );
-            }
-        } catch ( InterruptedException e ) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private void parseAndPut( byte[] raw ) throws InterruptedException {
-        Message msg = null;
-        try {
-            msg = parse( raw );
-        } catch ( SAXException e ) {
-            m_logger.log(  "Could not parse message", e );
-            return;
-        }
-
-        m_out.put( msg );
-    }
-
-    private Message parse( byte[] raw ) throws SAXException {
+public class XmlParser implements Parser {
+    public Message parse( byte[] raw ) throws ParserException {
         final Message msg = new Message();
         DocumentBuilder builder = null;
         try {
             builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch ( ParserConfigurationException e ) {
-            m_logger.log( "Could not create document builder", e );
+            throw new ParserException( e );
         }
         Document doc = null;
         try {
             doc = builder.parse( new ByteArrayInputStream( raw ) );
-        } catch ( IOException e ) {
-            m_logger.log( "Impossible IOException while reading from a byte array", e );
+        } catch ( Throwable t ) {
+            throw new ParserException( t );
         }
         final Element root = doc.getDocumentElement();
         final NodeList children = root.getChildNodes();
@@ -93,7 +60,7 @@ public class XmlParser implements Runnable {
         return msg;
     }
 
-    private BlockingQueue<byte[]> m_in;
-    private BlockingQueue<Message> m_out;
-    private Logger m_logger;
+    public String format() {
+        return "XML";
+    }
 }

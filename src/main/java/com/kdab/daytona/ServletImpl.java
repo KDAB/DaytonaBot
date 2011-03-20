@@ -99,8 +99,8 @@ public class ServletImpl extends HttpServlet {
         m_queuesByFormat.put( "json", rawJson );
         BlockingQueue<Message> parsed = new ArrayBlockingQueue<Message>( 1000 );
         BlockingQueue<Message> routed = new ArrayBlockingQueue<Message>( 5000 );
-        XmlParser xp = new XmlParser( rawXml, parsed, m_logger );
-        JsonParser jp = new JsonParser( rawJson, parsed, m_logger );
+        ParserRunnable xp = new ParserRunnable( new XmlParser(), rawXml, parsed, m_logger );
+        ParserRunnable jp = new ParserRunnable( new JsonParser(), rawJson, parsed, m_logger );
         Router r = new Router( parsed, routed, config.routingRules() );
         JabberBot b = new JabberBot( routed, config.account(), config.nick(), config.admins(), config.roomsToJoin(), m_logger );
         m_workers = new Vector<Thread>();
