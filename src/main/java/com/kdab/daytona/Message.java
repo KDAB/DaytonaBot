@@ -34,6 +34,17 @@ public class Message {
             type = t;
         }
 
+        @Override
+        public boolean equals( Object oother ) {
+            if ( this == oother )
+                return true;
+            if ( !(oother instanceof Receiver ) )
+                return false;
+            Receiver other = (Receiver)oother;
+            return Utils.areEqual( receiver, other.receiver )
+                && Utils.areEqual( type, other.type );
+        }
+
         public final String receiver;
         public final ReceiverType type;
     }
@@ -61,6 +72,17 @@ public class Message {
 
     public final void setProperty( String k, String v ) {
         m_properties.put( k, v );
+    }
+
+    @Override
+    public boolean equals( Object oother ) {
+        if ( this == oother )
+            return true;
+        if ( !(oother instanceof Message ) )
+            return false;
+        Message other = (Message)oother;
+        return Utils.areEqual( m_receivers, other.m_receivers )
+            && Utils.areEqual( m_properties, other.m_properties );
     }
 
     private Vector<Receiver> m_receivers;
