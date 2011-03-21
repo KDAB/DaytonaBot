@@ -1,4 +1,4 @@
-Daytona is a Jabber bot that receives message via HTTP and forwards them to Jabber. Daytona can be configured to route messages
+Daytona is a Jabber bot that receives notification messages via HTTP and forwards them to Jabber. Daytona can be configured to route messages
 it receives to Jabber users or MUC rooms, depending on the message's properties. Daytona makes it easy to deliver messages to 
 jabber from any service that speaks HTTP (commit messages from a SCM post-commit hook being just one example).
 
