@@ -97,7 +97,6 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
                 .port() );
         connconf.setSecurityMode( m_account.sslRequired() ? SecurityMode.required : SecurityMode.enabled );
         connconf.setSendPresence( true );
-        connconf.setReconnectionAllowed( true );
 
         try {
             m_connection = new XMPPConnection( connconf );
