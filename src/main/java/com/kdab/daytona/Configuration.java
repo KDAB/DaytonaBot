@@ -41,10 +41,14 @@ public class Configuration {
 
     public Configuration( Properties props ) throws InvalidConfigurationException {
         final String user = throwIfNull( props, "jabber.user" );
-        final String server = throwIfNull( props, "jabber.server" );
+        final String domain = throwIfNull( props, "jabber.server" );
+        final String connectServer = props.getProperty( "jabber.connectServer", domain );
         final String password = throwIfNull( props, "jabber.password" );
+        final boolean sslRequired = Boolean.parseBoolean( props.getProperty( "jabber.sslRequired", "true" ) );
         final int port = Integer.parseInt( props.getProperty( "jabber.port", "5222" ) );
-        m_account = new Account( user, server, port, password );
+        m_account = new Account( user, domain, port, password );
+        m_account.setConnectServer( connectServer );
+        m_account.setSslRequired( sslRequired );
         final int roomCount = Integer.parseInt( props.getProperty( "jabber.roomsToJoin.count", "0" ) );
         m_roomsToJoin = new Vector<String>();
         for ( int i = 0; i < roomCount; ++i )

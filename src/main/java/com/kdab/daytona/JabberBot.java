@@ -93,9 +93,9 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
     private void login() throws XMPPException {
         assert( m_connection == null );
         final int magic = new Random().nextInt( 1000 );
-        final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.server(), m_account
+        final ConnectionConfiguration connconf = new ConnectionConfiguration( m_account.connectServer(), m_account
                 .port() );
-        connconf.setSecurityMode( SecurityMode.required );
+        connconf.setSecurityMode( m_account.sslRequired() ? SecurityMode.required : SecurityMode.enabled );
         connconf.setSendPresence( true );
         connconf.setReconnectionAllowed( true );
 

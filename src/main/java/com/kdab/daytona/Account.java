@@ -21,19 +21,28 @@
 package com.kdab.daytona;
 
 class Account {
-    public Account( String user, String server, int port, String password ) {
+    public Account( String user, String domain, int port, String password ) {
         m_user = user;
-        m_server = server;
+        m_domain = domain;
         m_port = port;
         m_password = password;
+        m_sslRequired = true;
+    }
+
+    public final String connectServer() {
+        return m_connectServer != null ? m_connectServer : m_domain;
+    }
+
+    public final void setConnectServer( String s ) {
+        m_connectServer = s;
     }
 
     public final String user() {
         return m_user;
     }
 
-    public final String server() {
-        return m_server;
+    public final String domain() {
+        return m_domain;
     }
 
     public final int port() {
@@ -44,8 +53,18 @@ class Account {
         return m_password;
     }
 
+    public final boolean sslRequired() {
+        return m_sslRequired;
+    }
+
+    public void setSslRequired( boolean b ) {
+        m_sslRequired = b;
+    }
+
+    private String m_connectServer;
     private String m_user;
-    private String m_server;
+    private String m_domain;
     private int m_port;
     private String m_password;
+    private boolean m_sslRequired;
 }
