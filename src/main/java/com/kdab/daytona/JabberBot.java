@@ -29,6 +29,7 @@ import java.util.concurrent.BlockingQueue;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -36,7 +37,7 @@ import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
-public class JabberBot implements Runnable, ChatManagerListener, MessageListener {
+public class JabberBot implements Runnable, ChatManagerListener, ConnectionListener, MessageListener {
     public JabberBot( BlockingQueue<Message> in, Account account, String nick, Vector<String> admins, Vector<String> roomsToJoin, Logger logger ) {
         m_in = in;
         m_account = account;
@@ -90,6 +91,32 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
         }
     }
 
+    public void connectionClosed() {
+        m_logger.log( "Jabber bot: Connection closed." );
+    }
+
+    public void connectionClosedOnError(Exception e) {
+        m_logger.log( "Jabber bot: Connection closed on error", e );
+    }
+
+    public void reconnectingIn( int seconds ) {
+        m_logger.log( String.format( "Jabber bot: Reconnecting in %d seconds", seconds ) );
+
+    }
+
+    public void reconnectionFailed( Exception e ) {
+        m_logger.log( "Jabber bot: Reconnect failed", e );
+    }
+
+    public void reconnectionSuccessful() {
+        m_logger.log( "Jabber bot: Reconnected." );
+        try {
+            joinRooms();
+        } catch ( XMPPException e ) {
+            m_logger.log( "Joining rooms after reconnect failed", e );
+        }
+    }
+
     private void login() throws XMPPException {
         assert( m_connection == null );
         final int magic = new Random().nextInt( 1000 );
@@ -103,6 +130,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
             m_connection.connect();
             m_connection.login( m_account.user(), m_account.password(), "Daytona" + magic );
             m_connection.getChatManager().addChatListener(  this );
+            m_connection.addConnectionListener( this );
         } catch ( XMPPException e ) {
             m_connection.disconnect();
             m_connection = null;
@@ -111,7 +139,7 @@ public class JabberBot implements Runnable, ChatManagerListener, MessageListener
     }
 
     private void joinRooms() throws XMPPException {
-        for ( String i : m_roomsToJoin ) {
+        for ( final String i : m_roomsToJoin ) {
             MultiUserChat c = new MultiUserChat( m_connection, i );
             c.join( m_nick );
             c.changeAvailabilityStatus( "Yo.", Presence.Mode.available );
